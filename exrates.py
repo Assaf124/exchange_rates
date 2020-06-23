@@ -1,5 +1,7 @@
 import requests
 import os
+import re
+import traceback
 
 
 class Exrates:
@@ -48,10 +50,11 @@ class Exrates:
             url = f'http://openexchangerates.org/api/historical/{date}.json?app_id={Exrates.APP_ID}'
             response = requests.get(url, verify=False)
             self.exchange_rates = response.json()
+            self.exchange_rates = self.exchange_rates['rates']
             return self.exchange_rates
 
         except Exception as error:
-            print(f'was not able to fetch exchange rates. got: {error}')
+            print(f'was  unable to fetch exchange rates. got: {error}')
             return None
 
     def create_dir(self):
@@ -76,11 +79,11 @@ class Exrates:
                     False
         """
         self.create_dir()
+        currencies_as_csv = self._convert_currencies_to_csv(currencies)
         try:
             path = Exrates.currencies_file_path
-            # path = os.path.join('exchange_rates_data', 'currencies.csv')
             with open(path, 'w') as file:
-                file.write(str(currencies))
+                file.write(str(currencies_as_csv))
                 file.close()
             return True
 
@@ -96,10 +99,11 @@ class Exrates:
                     False
         """
         self.create_dir()
+        rates_as_csv = self._convert_exrates_to_csv(rates_info)
         try:
-            path = os.path.join('exchange_rates_data', f'ex_rates_{date}.csv')
+            path = os.path.join(Exrates.DIR_NAME, f'ex_rates_{date}.csv')
             with open(path, 'w') as file:
-                file.write(str(rates_info))
+                file.write(str(rates_as_csv))
                 file.close()
             return True
 
@@ -117,7 +121,13 @@ class Exrates:
             path = os.path.join('exchange_rates_data', 'currencies.csv')
             file_obj = open(path, 'r')
             file_content = file_obj.read()
-            return file_content
+            file_as_list = re.split('[\n,]', file_content)
+
+            for index, item in enumerate(file_as_list[:-1]):
+                if index % 2 != 0:
+                    continue
+                self.currencies[item] = file_as_list[index + 1]
+            return self.currencies
 
         except Exception as error:
             print(f'{error}')
@@ -174,17 +184,54 @@ class Exrates:
             else:
                 ex_rate = self._fetch_exrates(date)
                 self._save_exrates(date, ex_rate)
-                return ex_rate
+                return ex_rate['rates']
 
         except Exception as error:
             print(f'{error}')
             return None
 
+    def _convert_currencies_to_csv(self, currencies_file):
+        """
+        Converts the currencies file fetched by _fetch_currencies to csv file format
+        :currencies_file:   a dictionary
+        :return:            csv file format
+        """
+        currencies = ''
+        for key, value in currencies_file.items():
+            currencies += value
+            currencies += ','
+            currencies += key
+            currencies += '\n'
+        return currencies
+
+    def _convert_exrates_to_csv(self, exrates_file):
+        """
+        Converts the ex-rates file fetched by _fetch_exrates to csv file format
+        :exrates_file:  a dictionary
+        :return:        csv file format
+        """
+        exrates = ''
+        for key, value in exrates_file.items():
+            exrates += key
+            exrates += ','
+            exrates += str(value)
+            exrates += '\n'
+        return exrates
+
 
 if __name__ == '__main__':
-    date = '2018-08-20'
+    date = '2014-06-22'
     aaa = Exrates()
-    bbb = aaa.get_exrates(date)
-    print(bbb)
-    ccc = aaa.get_currencies()
-    print(ccc)
+    rates = aaa._fetch_exrates(date)
+    if rates is not None:
+        aaa._save_exrates(date, rates)
+        # print(rates)
+    else:
+        print('No rates info available')
+    rates = aaa._load_exrates(date)
+    print(rates)
+    # rates = aaa._load_exrates(date)
+    # rates = aaa.get_exrates(date)
+
+
+
