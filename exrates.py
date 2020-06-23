@@ -113,13 +113,13 @@ class Exrates:
 
     def _load_currencies(self):
         """
-        Returns the currencies loaded from the currencies file.
+        Loads currencies info from drive, convert it from string/csv format
+        to python dictionary and returns it
         :return:    dictionary
-                    currencies.csv
+                    None
         """
         try:
-            path = os.path.join(Exrates.DIR_NAME, Exrates.CURRENCIES_FILE_NAME)
-            file_obj = open(path, 'r')
+            file_obj = open(Exrates.currencies_file_path, 'r')
             file_content = file_obj.read()
             file_as_list = re.split('[\n,]', file_content)
 
@@ -129,14 +129,14 @@ class Exrates:
                 self.currencies[item] = file_as_list[index + 1]
             return self.currencies
 
-        except Exception as error:
+        except Exrates as error:
             print(f'{error}')
             return None
 
     def _load_exrates(self, date):
         """
-        Loads exchange rates info from drive, convert it from string/csv format to dictionary python
-        and returns it
+        Loads exchange rates info from drive, convert it from string/csv format
+        to python dictionary and returns it
         :date:
         :returns:   dictionary
                     None
@@ -166,7 +166,7 @@ class Exrates:
                     None
         """
         try:
-            if self._load_currencies() is not None:
+            if os.path.exists(Exrates.currencies_file_path):
                 return self._load_currencies()
             else:
                 currencies = self._fetch_currencies()
@@ -189,7 +189,7 @@ class Exrates:
         try:
             if os.path.exists(path):
                 # self._convert_to_dictionary(path)
-                self._load_exrates_new(date)
+                self._load_exrates(date)
                 return self.exchange_rates
             else:
                 rates = self._fetch_exrates(date)
@@ -199,36 +199,6 @@ class Exrates:
         except Exception as error:
             print(f'{error}')
             return None
-
-    def _convert_to_dictionary(self, path):
-        """
-        Convert input string/csv file to python dictionary
-        :path:     path to input file
-        :returns:   dictionary
-                    None
-        """
-        if path == os.path.join(Exrates.DIR_NAME, Exrates.CURRENCIES_FILE_NAME):
-            flag = 1
-        else:
-            flag = 2
-
-        if os.path.exists(path):
-            file_obj = open(path, 'r')
-            file_content = file_obj.read()
-            file_as_list = re.split('[\n,]', file_content)
-
-            for index, item in enumerate(file_as_list[:-1]):
-                if index % 2 != 0:
-                    continue
-                if flag == 1:
-                    self.currencies[item] = file_as_list[index + 1]
-                if flag == 2:
-                    self.exchange_rates[item] = file_as_list[index+1]
-
-            if flag == 1:
-                return self.currencies
-            if flag == 2:
-                return self.exchange_rates
 
     def _convert_currencies_to_csv(self, currencies_file):
         """
@@ -260,7 +230,7 @@ class Exrates:
 
 
 if __name__ == '__main__':
-    date = '2014-06-12'
+    date = '2014-06-13'
     aaa = Exrates()
     # currencies = aaa.get_currencies()
     # print(currencies)
