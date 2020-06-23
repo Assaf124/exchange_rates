@@ -118,7 +118,7 @@ class Exrates:
                     currencies.csv
         """
         try:
-            path = os.path.join('exchange_rates_data', 'currencies.csv')
+            path = os.path.join(Exrates.DIR_NAME, Exrates.CURRENCIES_FILE_NAME)
             file_obj = open(path, 'r')
             file_content = file_obj.read()
             file_as_list = re.split('[\n,]', file_content)
@@ -135,15 +135,23 @@ class Exrates:
 
     def _load_exrates(self, date):
         """
-        Returns the exchange rates data for date date loaded from the appropriate exchange rates file.
-        :return:    ?
+        Loads exchange rates info from drive, convert it from string/csv format to dictionary python
+        and returns it
+        :date:
+        :returns:   dictionary
                     None
         """
         try:
-            path = os.path.join('exchange_rates_data', f'ex_rates_{date}.csv')
+            path = os.path.join(Exrates.DIR_NAME, f'ex_rates_{date}.csv')
             file_obj = open(path, 'r')
             file_content = file_obj.read()
-            return file_content
+            file_as_list = re.split('[\n,]', file_content)
+
+            for index, item in enumerate(file_as_list[:-1]):
+                if index % 2 != 0:
+                    continue
+                self.exchange_rates[item] = file_as_list[index + 1]
+            return self.exchange_rates
 
         except Exception as error:
             print(f'{error}')
@@ -177,18 +185,50 @@ class Exrates:
         :return:    dictionary
                     None
         """
+        path = os.path.join(Exrates.DIR_NAME, f'ex_rates_{date}.csv')
         try:
-            ex_rates = self._load_exrates(date)
-            if ex_rates is not None:
-                return ex_rates
+            if os.path.exists(path):
+                # self._convert_to_dictionary(path)
+                self._load_exrates_new(date)
+                return self.exchange_rates
             else:
-                ex_rate = self._fetch_exrates(date)
-                self._save_exrates(date, ex_rate)
-                return ex_rate['rates']
+                rates = self._fetch_exrates(date)
+                self._save_exrates(date, rates)
+                return self.exchange_rates
 
         except Exception as error:
             print(f'{error}')
             return None
+
+    def _convert_to_dictionary(self, path):
+        """
+        Convert input string/csv file to python dictionary
+        :path:     path to input file
+        :returns:   dictionary
+                    None
+        """
+        if path == os.path.join(Exrates.DIR_NAME, Exrates.CURRENCIES_FILE_NAME):
+            flag = 1
+        else:
+            flag = 2
+
+        if os.path.exists(path):
+            file_obj = open(path, 'r')
+            file_content = file_obj.read()
+            file_as_list = re.split('[\n,]', file_content)
+
+            for index, item in enumerate(file_as_list[:-1]):
+                if index % 2 != 0:
+                    continue
+                if flag == 1:
+                    self.currencies[item] = file_as_list[index + 1]
+                if flag == 2:
+                    self.exchange_rates[item] = file_as_list[index+1]
+
+            if flag == 1:
+                return self.currencies
+            if flag == 2:
+                return self.exchange_rates
 
     def _convert_currencies_to_csv(self, currencies_file):
         """
@@ -220,18 +260,11 @@ class Exrates:
 
 
 if __name__ == '__main__':
-    date = '2014-06-22'
+    date = '2014-06-12'
     aaa = Exrates()
-    rates = aaa._fetch_exrates(date)
-    if rates is not None:
-        aaa._save_exrates(date, rates)
-        # print(rates)
-    else:
-        print('No rates info available')
-    rates = aaa._load_exrates(date)
+    # currencies = aaa.get_currencies()
+    # print(currencies)
+    rates = aaa.get_exrates(date)
     print(rates)
-    # rates = aaa._load_exrates(date)
-    # rates = aaa.get_exrates(date)
-
 
 
