@@ -188,13 +188,11 @@ class Exrates:
         path = os.path.join(Exrates.DIR_NAME, f'ex_rates_{date}.csv')
         try:
             if os.path.exists(path):
-                # self._convert_to_dictionary(path)
-                self._load_exrates(date)
-                return self.exchange_rates
+                return self._load_exrates(date)
             else:
                 rates = self._fetch_exrates(date)
                 self._save_exrates(date, rates)
-                return self.exchange_rates
+                return rates
 
         except Exception as error:
             print(f'{error}')
@@ -230,7 +228,7 @@ class Exrates:
 
 
 if __name__ == '__main__':
-    date = '2014-06-13'
+    date = '2014-05-11'
     aaa = Exrates()
     # currencies = aaa.get_currencies()
     # print(currencies)
