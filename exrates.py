@@ -1,7 +1,6 @@
 import requests
 import os
 import re
-import traceback
 
 
 class Exrates:
@@ -35,8 +34,15 @@ class Exrates:
 
     def date_validation(self, date):
         """
-        Validates the date input format + input date is < than today's date.
+        Validates the date input is in the format of YYYY-MM-DD
+        :date:      date info
+        :returns:   True
+                    False
         """
+        if re.search('[1-2][0-9][0-9][0-9][-][0-1][0-9][-][0-3][0-9]', date):
+            return True
+        else:
+            return False
 
     def _fetch_exrates(self, date, *args):
         """
@@ -228,10 +234,10 @@ class Exrates:
 
 
 if __name__ == '__main__':
-    date = '2014-05-11'
+    date = '2014-05-12'
     aaa = Exrates()
-    # currencies = aaa.get_currencies()
-    # print(currencies)
+    currencies = aaa.get_currencies()
+    print(currencies)
     rates = aaa.get_exrates(date)
     print(rates)
 
