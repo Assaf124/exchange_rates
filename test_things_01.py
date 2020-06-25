@@ -1,22 +1,10 @@
-import os
-import re
+code = 'AMD'
+my_dict = {'AED': '3.67303', 'AFN': '56.870351', 'ALL': '101.816499', 'AMD': '416.132998', 'ANG': '1.78702'}
 
-path = os.path.join('exchange_rates_data', 'currencies.csv')
-file_obj = open(path, 'r')
-file_content = file_obj.read()
-print(file_content)
+for key, value in my_dict.items():
+    if key == code:
+        print(f'{key} | {value}')
 
-file_as_list = re.split('[\n,]', file_content)
-print(file_as_list)
-
-my_dict = dict()
-for index, item in enumerate(file_as_list[:-1]):
-    if index % 2 != 0:
-        continue
-    my_dict[item] = file_as_list[index+1]
-
-
-print(my_dict)
 
 
 

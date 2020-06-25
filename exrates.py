@@ -1,6 +1,8 @@
 import requests
 import os
 import re
+import datetime
+import time
 
 
 class Exrates:
@@ -12,6 +14,7 @@ class Exrates:
     def __init__(self):
         self.currencies = dict()
         self.exchange_rates = dict()
+        self.exchange_rates_by_code = dict()
         self.dir_path = ''
 
     def _fetch_currencies(self):
@@ -204,6 +207,41 @@ class Exrates:
             print(f'{error}')
             return None
 
+    def get_exrate_by_code(self, date, code):
+        """
+        Returns specific rate value based on currency code for specific date
+        :date:      required date's exchange rate
+        :code:      currency code (like USD, ILS etc...)
+        :returns:   taple (currency code, exchange rate)
+                    None
+        """
+        try:
+            end_date = datetime.datetime.strptime(date, '%Y-%m-%d')
+            start_date = end_date + datetime.timedelta(days=-365)
+
+            start_date_string = str(start_date)
+            start_date_time = start_date_string.split(' ')
+            fetch_date = str(start_date_time[0])
+            for x in range(10):
+                self._fetch_exrates(fetch_date)
+                for key, value in self.exchange_rates.items():
+                    if key == code:
+                        self.exchange_rates_by_code[fetch_date] = value
+                        print(f'{self.exchange_rates_by_code}')
+                time.sleep(5)
+
+                fetch_date = datetime.datetime.strptime(fetch_date, '%Y-%m-%d')
+                fetch_date = fetch_date + datetime.timedelta(days=7)
+                fetch_date = str(fetch_date)
+                fetch_date_list = fetch_date.split(' ')
+                fetch_date = str(fetch_date_list[0])
+
+            return self.exchange_rates_by_code
+
+        except Exception as error:
+            print(f'{error}')
+            return None
+
     def _convert_currencies_to_csv(self, currencies_file):
         """
         Converts the currencies file fetched by _fetch_currencies to csv file format
@@ -234,11 +272,11 @@ class Exrates:
 
 
 if __name__ == '__main__':
-    date = '2014-05-12'
+    date = '2014-11-14'
     aaa = Exrates()
-    currencies = aaa.get_currencies()
-    print(currencies)
-    rates = aaa.get_exrates(date)
-    print(rates)
-
-
+    # currencies = aaa.get_currencies()
+    # print(currencies)
+    # rates = aaa.get_exrates(date)
+    # print(rates)
+    ils_values = aaa.get_exrate_by_code(date, 'ILS')
+    print(ils_values)
