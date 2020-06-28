@@ -217,12 +217,19 @@ class Exrates:
         """
         try:
             fetch_date = self._generate_new_date(date, -365)
-            for x in range(5):
-                self._fetch_exrates(fetch_date)
+            for x in range(52):
+                path = os.path.join(Exrates.DIR_NAME, f'ex_rates_{fetch_date}.csv')
+                if not os.path.exists(path):
+                    self._fetch_exrates(fetch_date)
+                    self._save_exrates(fetch_date, self.exchange_rates)
+                else:
+                    self._load_exrates(fetch_date)
+
                 for key, value in self.exchange_rates.items():
                     if key == code:
                         self.exchange_rates_by_code[fetch_date] = value
-                        print(f'{self.exchange_rates_by_code}')
+                        # print(f'{self.exchange_rates_by_code}')
+                        print(f'added key: {fetch_date} and value: {value}')
                 time.sleep(4)
                 # advancing the date one week
                 fetch_date = self._generate_new_date(fetch_date, 7)
@@ -235,9 +242,9 @@ class Exrates:
     def _generate_new_date(self, date, delta):
         """
         Generates new date based on given date and delta
-        :date:      date in the format of ...
-        :delta:     the delta days from the given date in the input
-        :returns:   date in the format of ...
+        :date:      string in the format of YYYY-MM-DD, for example 2017-03-12
+        :delta:     the delta in days from the given date in the input to the required date in the 'output'
+        :returns:   string in the format of YYYY-MM-DD, for example 2017-03-12
                     None
         """
         try:
@@ -289,5 +296,5 @@ if __name__ == '__main__':
     # print(currencies)
     # rates = aaa.get_exrates(date)
     # print(rates)
-    # ils_values = aaa.get_exrate_by_code('ILS', date)
-    # print(ils_values)
+    ils_values = aaa.get_exrate_by_code('ILS', date)
+    print(ils_values)
