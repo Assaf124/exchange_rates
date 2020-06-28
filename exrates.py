@@ -240,11 +240,16 @@ class Exrates:
         :returns:   date in the format of ...
                     None
         """
-        datetime_format = datetime.datetime.strptime(date, '%Y-%m-%d')
-        new_date = datetime_format + datetime.timedelta(days=delta)
-        date_string = str(new_date)
-        date_as_list = date_string.split(' ')
-        return str(date_as_list[0])
+        try:
+            datetime_format = datetime.datetime.strptime(date, '%Y-%m-%d')
+            new_date = datetime_format + datetime.timedelta(days=delta)
+            date_string = str(new_date)
+            date_as_list = date_string.split(' ')
+            return str(date_as_list[0])
+
+        except Exception as error:
+            print(f'{error}')
+            return None
 
     def _convert_currencies_to_csv(self, currencies_file):
         """
