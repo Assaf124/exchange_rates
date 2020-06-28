@@ -4,17 +4,21 @@ import matplotlib.pyplot as plt
 
 
 # user_input = input("Please type in a date in the format of YYYY-MM-DD: ")
+date = '2018-03-12'
 exrt = exrates.Exrates()
-# exrt.get_exrates(user_input)
+ils_values = exrt.get_exrate_by_code('ILS', date)
+print(ils_values)
 
-# current_date = datetime.datetime.now()
-# date = str(current_date)
-# date_list = date.split(' ')
-# today = date_list[0]
-# # print(today)
-# exrt.get_exrate_by_code(today, 'ILS')
-# print(exrt.get_exrate_by_code(today, 'ILS'))
+dates_list = list()
+currency_rate_list = list()
 
-plt.plot([1, 2, 3, 4], [1, 4, 9, 16], 'ro')
-plt.axis([0, 6, 0, 20])
+for key, value in ils_values.items():
+    dates_list.append(key)
+    currency_rate_list.append(value)
+
+# plt.plot([1, 2, 3, 4], [1, 4, 9, 16], 'ro')
+# plt.axis([0, 6, 0, 20])
+plt.plot(dates_list, currency_rate_list)
+plt.xticks(rotation=90)
+# plt.axis()
 plt.show()

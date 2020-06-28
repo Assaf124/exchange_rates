@@ -42,7 +42,7 @@ class Exrates:
         :returns:   True
                     False
         """
-        if re.search('[1-2][0-9][0-9][0-9][-][0-1][0-9][-][0-3][0-9]', date):
+        if re.search('[1,2][0,9][0-9][0-9][-][0,1][0-9][-][0-3][0-9]', date):
             return True
         else:
             return False
@@ -207,40 +207,44 @@ class Exrates:
             print(f'{error}')
             return None
 
-    def get_exrate_by_code(self, date, code):
+    def get_exrate_by_code(self, code, date):
         """
         Returns specific rate value based on currency code for specific date
-        :date:      required date's exchange rate
         :code:      currency code (like USD, ILS etc...)
-        :returns:   taple (currency code, exchange rate)
+        :date:      required date's exchange rate
+        :returns:   tuple (currency code, exchange rate)
                     None
         """
         try:
-            end_date = datetime.datetime.strptime(date, '%Y-%m-%d')
-            start_date = end_date + datetime.timedelta(days=-365)
-
-            start_date_string = str(start_date)
-            start_date_time = start_date_string.split(' ')
-            fetch_date = str(start_date_time[0])
-            for x in range(10):
+            fetch_date = self._generate_new_date(date, -365)
+            for x in range(5):
                 self._fetch_exrates(fetch_date)
                 for key, value in self.exchange_rates.items():
                     if key == code:
                         self.exchange_rates_by_code[fetch_date] = value
                         print(f'{self.exchange_rates_by_code}')
-                time.sleep(5)
-
-                fetch_date = datetime.datetime.strptime(fetch_date, '%Y-%m-%d')
-                fetch_date = fetch_date + datetime.timedelta(days=7)
-                fetch_date = str(fetch_date)
-                fetch_date_list = fetch_date.split(' ')
-                fetch_date = str(fetch_date_list[0])
-
+                time.sleep(4)
+                # advancing the date one week
+                fetch_date = self._generate_new_date(fetch_date, 7)
             return self.exchange_rates_by_code
 
         except Exception as error:
             print(f'{error}')
             return None
+
+    def _generate_new_date(self, date, delta):
+        """
+        Generates new date based on given date and delta
+        :date:      date in the format of ...
+        :delta:     the delta days from the given date in the input
+        :returns:   date in the format of ...
+                    None
+        """
+        datetime_format = datetime.datetime.strptime(date, '%Y-%m-%d')
+        new_date = datetime_format + datetime.timedelta(days=delta)
+        date_string = str(new_date)
+        date_as_list = date_string.split(' ')
+        return str(date_as_list[0])
 
     def _convert_currencies_to_csv(self, currencies_file):
         """
@@ -274,9 +278,11 @@ class Exrates:
 if __name__ == '__main__':
     date = '2014-11-14'
     aaa = Exrates()
+    print(aaa._generate_new_date(date, -7))
+    # print(aaa.date_validation(date))
     # currencies = aaa.get_currencies()
     # print(currencies)
     # rates = aaa.get_exrates(date)
     # print(rates)
-    ils_values = aaa.get_exrate_by_code(date, 'ILS')
-    print(ils_values)
+    # ils_values = aaa.get_exrate_by_code('ILS', date)
+    # print(ils_values)
