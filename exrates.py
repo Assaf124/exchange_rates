@@ -35,25 +35,25 @@ class Exrates:
             print(f'was not able to fetch currencies file. got {error}')
             return None
 
-    def date_validation(self, date):
+    def date_validation(self, date: str):
         """
         Validates the date input is in the format of YYYY-MM-DD
-        :date:      date info
-        :returns:   True
-                    False
+        :param date:    string. date info in the format YYYY-MM-DD
+        :returns:       True
+                        False
         """
         if re.search('[1,2][0,9][0-9][0-9][-][0,1][0-9][-][0-3][0-9]', date):
             return True
         else:
             return False
 
-    def _fetch_exrates(self, date, *args):
+    def _fetch_exrates(self, date: str, *args):
         """
         Fetches the exchange rates for the date date from the Open Exchange Rates
         website (https://openexchangerates.org/) and returns it as a dictionary.
-        :param:     date
-        :return:    dictionary
-                    None
+        :param date:    string. date info in the format YYYY-MM-DD
+        :return:        dictionary
+                        None
         """
         try:
             url = f'http://openexchangerates.org/api/historical/{date}.json?app_id={Exrates.APP_ID}'
@@ -80,12 +80,12 @@ class Exrates:
             print(f'{error}')
             return False
 
-    def _save_currencies(self, currencies):
+    def _save_currencies(self, currencies: dict):
         """
         Saves the dictionary currencies as a csv file.
-        :param:     currencies
-        :return:    True
-                    False
+        :param currencies:  dictionary
+        :return:            True
+                            False
         """
         self.create_dir()
         currencies_as_csv = self._convert_currencies_to_csv(currencies)
@@ -100,12 +100,13 @@ class Exrates:
             print(f'{error}')
             return False
 
-    def _save_exrates(self, date, rates_info):
+    def _save_exrates(self, date: str, rates_info: dict):
         """
         Saves the exchange rates data for date date in the appropriate exchange rates file.
-        :param:     date
-        :return:    True
-                    False
+        :param date:        string. date info in the format YYYY-MM-DD
+        :param rates_info:  dictionary. exchange rates information
+        :return:            True
+                            False
         """
         self.create_dir()
         rates_as_csv = self._convert_exrates_to_csv(rates_info)
@@ -142,13 +143,13 @@ class Exrates:
             print(f'{error}')
             return None
 
-    def _load_exrates(self, date):
+    def _load_exrates(self, date: str):
         """
         Loads exchange rates info from drive, convert it from string/csv format
         to python dictionary and returns it
-        :date:
-        :returns:   dictionary
-                    None
+        :param date:    string. date info in the format YYYY-MM-DD
+        :returns:       dictionary
+                        None
         """
         try:
             path = os.path.join(Exrates.DIR_NAME, f'ex_rates_{date}.csv')
@@ -186,13 +187,14 @@ class Exrates:
             print(f'{error}')
             return None
 
-    def get_exrates(self, date):
+    def get_exrates(self, date: str):
         """
         Returns the exchange rates data for date date loaded from the appropriate exchange rates file.
         If that file doesn't exists, the function fetches the data from the internet, saves it to the
         file, and then returns it.
-        :return:    dictionary
-                    None
+        :param date:    string. date info in the format YYYY-MM-DD
+        :return:        dictionary
+                        None
         """
         path = os.path.join(Exrates.DIR_NAME, f'ex_rates_{date}.csv')
         try:
@@ -207,17 +209,17 @@ class Exrates:
             print(f'{error}')
             return None
 
-    def get_exrate_by_code(self, code, date):
+    def get_exrate_by_code(self, code: str, date: str):
         """
         Returns specific rate value based on currency code for specific date
-        :code:      currency code (like USD, ILS etc...)
-        :date:      required date's exchange rate
-        :returns:   tuple (currency code, exchange rate)
-                    None
+        :param code:    string. 3 chars currency code (like USD, ILS etc...)
+        :param date:    string. date info in the format YYYY-MM-DD
+        :returns:       dictionary. in the format of {'date1': exchange_rate1, 'date2': exchange_rate2...}
+                        None
         """
         try:
             fetch_date = self._generate_new_date(date, -365)
-            for x in range(52):
+            for x in range(12):
                 path = os.path.join(Exrates.DIR_NAME, f'ex_rates_{fetch_date}.csv')
                 if not os.path.exists(path):
                     self._fetch_exrates(fetch_date)
@@ -239,13 +241,13 @@ class Exrates:
             print(f'{error}')
             return None
 
-    def _generate_new_date(self, date, delta):
+    def _generate_new_date(self, date: str, delta: int):
         """
         Generates new date based on given date and delta
-        :date:      string in the format of YYYY-MM-DD, for example 2017-03-12
-        :delta:     the delta in days from the given date in the input to the required date in the 'output'
-        :returns:   string in the format of YYYY-MM-DD, for example 2017-03-12
-                    None
+        :param date:    string. date info in the format YYYY-MM-DD for example 2017-03-12
+        :param delta:   integer. the delta in days from the given date in the input to the required date in the 'output'
+        :returns:       string in the format of YYYY-MM-DD, for example 2017-03-12
+                        None
         """
         try:
             datetime_format = datetime.datetime.strptime(date, '%Y-%m-%d')
@@ -258,11 +260,11 @@ class Exrates:
             print(f'{error}')
             return None
 
-    def _convert_currencies_to_csv(self, currencies_file):
+    def _convert_currencies_to_csv(self, currencies_file: dict):
         """
         Converts the currencies file fetched by _fetch_currencies to csv file format
-        :currencies_file:   a dictionary
-        :return:            csv file format
+        :param currencies_file: dictionary. in the format of {'name': 'code'...}
+        :return:                string. csv file format
         """
         currencies = ''
         for key, value in currencies_file.items():
@@ -272,11 +274,11 @@ class Exrates:
             currencies += '\n'
         return currencies
 
-    def _convert_exrates_to_csv(self, exrates_file):
+    def _convert_exrates_to_csv(self, exrates_file: dict):
         """
         Converts the ex-rates file fetched by _fetch_exrates to csv file format
-        :exrates_file:  a dictionary
-        :return:        csv file format
+        :param exrates_file:    dictionary. in the format of {'code': 'ex_rate'...}
+        :return:                csv file format
         """
         exrates = ''
         for key, value in exrates_file.items():
