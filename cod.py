@@ -4,8 +4,8 @@ import exrates
 exrt = exrates.Exrates()
 exrt.get_currencies()
 # print(exrt.currencies)
-# user_input = input("Please type in a date in the format of YYYY-MM-DD: ")
-user_input = '2007-03-12'
+user_input = input("Please type in a date in the format of YYYY-MM-DD: ")
+# user_input = '2007-03-12'
 
 exrt.get_exrates(user_input)
 # print(exrt.exchange_rates)

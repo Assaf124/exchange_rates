@@ -3,8 +3,8 @@ import exrates
 
 exrt = exrates.Exrates()
 exrt.get_currencies()
-# user_input = input("Please type in a date in the format of YYYY-MM-DD: ")
-user_input = '2019-05-18'
+user_input = input("Please type in a date in the format of YYYY-MM-DD: ")
+# user_input = '2019-05-18'
 
 exrt.get_exrates(user_input)
 # print(exrt.exchange_rates)

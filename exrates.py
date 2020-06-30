@@ -219,7 +219,7 @@ class Exrates:
         """
         try:
             fetch_date = self._generate_new_date(date, -365)
-            for x in range(12):
+            for x in range(13):
                 path = os.path.join(Exrates.DIR_NAME, f'ex_rates_{fetch_date}.csv')
                 if not os.path.exists(path):
                     self._fetch_exrates(fetch_date)
@@ -232,7 +232,7 @@ class Exrates:
                         self.exchange_rates_by_code[fetch_date] = value
                         # print(f'{self.exchange_rates_by_code}')
                         print(f'added key: {fetch_date} and value: {value}')
-                time.sleep(4)
+                time.sleep(5)
                 # advancing the date one week
                 fetch_date = self._generate_new_date(fetch_date, 7)
             return self.exchange_rates_by_code
