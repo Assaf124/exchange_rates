@@ -15,6 +15,8 @@ class Exrates:
         self.currencies = dict()
         self.exchange_rates = dict()
         self.exchange_rates_by_code = dict()
+        self.step = None
+        self.range = None
         self.dir_path = ''
 
     def _fetch_currencies(self):
@@ -209,32 +211,46 @@ class Exrates:
             print(f'{error}')
             return None
 
-    def get_exrate_by_code(self, code: str, date: str):
+    def get_exrate_by_code(self, code: str, date: str, **time_frame):
         """
         Returns specific rate value based on currency code for specific date
-        :param code:    string. 3 chars currency code (like USD, ILS etc...)
-        :param date:    string. date info in the format YYYY-MM-DD
-        :returns:       dictionary. in the format of {'date1': exchange_rate1, 'date2': exchange_rate2...}
-                        None
+        :param code:                string. 3 chars currency code, for example: USD, ILS
+        :param date:                string. date info in the format YYYY-MM-DD
+        :param time_frame:          integer. accept 'days' or 'weeks' for example days=21 | weeks=5
+                                    represent the number of days/weeks back to fetch ex-rate info.
+        :returns:                   dictionary. in the format of {'date1': exchange_rate1, 'date2': exchange_rate2...}
+                                    None
         """
+        for key, value in time_frame.items():
+            if key == 'days':
+                time_frame = value
+                self.step = 1
+                self.range = value
+            elif key == 'weeks':
+                time_frame = value * 7
+                self.step = 7
+                self.range = value
+            else:
+                print(f'Method does not accept input param: {time_frame}. Only days or weeks')
+                return None
+
         try:
-            fetch_date = self._generate_new_date(date, -365)
-            for x in range(13):
+            fetch_date = self._generate_new_date(date, -time_frame)
+            for x in range(self.range):
                 path = os.path.join(Exrates.DIR_NAME, f'ex_rates_{fetch_date}.csv')
                 if not os.path.exists(path):
                     self._fetch_exrates(fetch_date)
                     self._save_exrates(fetch_date, self.exchange_rates)
+                    time.sleep(5)
                 else:
                     self._load_exrates(fetch_date)
 
                 for key, value in self.exchange_rates.items():
                     if key == code:
                         self.exchange_rates_by_code[fetch_date] = value
-                        # print(f'{self.exchange_rates_by_code}')
                         print(f'added key: {fetch_date} and value: {value}')
-                time.sleep(5)
-                # advancing the date one week
-                fetch_date = self._generate_new_date(fetch_date, 7)
+                # advancing the date one hop
+                fetch_date = self._generate_new_date(fetch_date, self.step)
             return self.exchange_rates_by_code
 
         except Exception as error:
@@ -290,13 +306,15 @@ class Exrates:
 
 
 if __name__ == '__main__':
-    date = '2014-11-14'
+    date = '2017-03-12'
+    currency_code = 'EUR'
     aaa = Exrates()
-    print(aaa._generate_new_date(date, -7))
+    # aaa.get_exrate_by_code_new('ILS', '2017-08-25', weeks=56)
+    # print(aaa._generate_new_date(date, -7))
     # print(aaa.date_validation(date))
     # currencies = aaa.get_currencies()
     # print(currencies)
     # rates = aaa.get_exrates(date)
     # print(rates)
-    ils_values = aaa.get_exrate_by_code('ILS', date)
+    ils_values = aaa.get_exrate_by_code(currency_code, date, weeks=8)
     print(ils_values)
