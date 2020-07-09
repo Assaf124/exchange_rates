@@ -1,3 +1,4 @@
+# ert stand for exchange rate table
 import exrates
 
 

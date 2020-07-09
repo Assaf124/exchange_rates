@@ -1,3 +1,4 @@
+# cod stand for currencies on a date
 import exrates
 
 
