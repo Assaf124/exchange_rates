@@ -221,18 +221,20 @@ class Exrates:
         :returns:                   dictionary. in the format of {'date1': exchange_rate1, 'date2': exchange_rate2...}
                                     None
         """
-        for key, value in time_frame.items():
-            if key == 'days':
-                time_frame = value
-                self.step = 1
-                self.range = value
-            elif key == 'weeks':
-                time_frame = value * 7
-                self.step = 7
-                self.range = value
-            else:
-                print(f'Method does not accept input param: {time_frame}. Only days or weeks')
-                return None
+        try:
+            for key, value in time_frame.items():
+                if key == 'days':
+                    time_frame = value
+                    self.step = 1
+                    self.range = value
+                elif key == 'weeks':
+                    time_frame = value * 7
+                    self.step = 7
+                    self.range = value
+
+        except Exception as error:
+            print(f'Method does not accept input param: {time_frame}. Only "days" or "weeks". Got error: {error}')
+            return None
 
         try:
             fetch_date = self._generate_new_date(date, -time_frame)
@@ -252,6 +254,43 @@ class Exrates:
                 # advancing the date one hop
                 fetch_date = self._generate_new_date(fetch_date, self.step)
             return self.exchange_rates_by_code
+
+        except Exception as error:
+            print(f'{error}')
+            return None
+
+    def compare_exrates(self, currency_code1, currency_code2, date, **time_frame):
+        """
+        Returns tuple containing two dictionaries which hold currencies exchange_rate: date information
+        :param currency_code1:      string. 3 chars currency code, for example: USD, ILS
+        :param currency_code2:      string. 3 chars currency code, for example: USD, ILS
+        :param date:                string. date info in the format YYYY-MM-DD
+        :param time_frame:          integer. accept 'days' or 'weeks' for example days=21 | weeks=5
+                                    represent the number of days/weeks back to fetch ex-rate info.
+        :returns:                   tuple. contains two dictionaries. each are in the format of {'date1': exchange_rate1..}
+                                    None
+        """
+        # time_type = re.findall('|'.join((['days','weeks'])), str(time_frame.keys()))
+
+        try:
+            if re.findall('weeks', str(time_frame.keys())):
+                digit = re.findall('[0-9]', str(time_frame.values()))
+                self.get_exrate_by_code(currency_code1, date, weeks=int(digit[0]))
+                currency_list_1 = self.exchange_rates_by_code.copy()
+                self.get_exrate_by_code(currency_code2, date, weeks=int(digit[0]))
+                currency_list_2 = self.exchange_rates_by_code.copy()
+            elif re.findall('days', str(time_frame.keys())):
+                digit = re.findall('[0-9]', str(time_frame.values()))
+                self.get_exrate_by_code(currency_code1, date, days=int(digit[0]))
+                currency_list_1 = self.exchange_rates_by_code.copy()
+                self.get_exrate_by_code(currency_code2, date, days=int(digit[0]))
+                currency_list_2 = self.exchange_rates_by_code.copy()
+            else:
+                currency_list_1 = None
+                currency_list_2 = None
+                print('Was unable to run time_frame input. please check it')
+                return None
+            return (currency_list_1, currency_list_2)
 
         except Exception as error:
             print(f'{error}')
@@ -316,5 +355,7 @@ if __name__ == '__main__':
     # print(currencies)
     # rates = aaa.get_exrates(date)
     # print(rates)
-    ils_values = aaa.get_exrate_by_code(currency_code, date, weeks=8)
-    print(ils_values)
+    # ils_values = aaa.get_exrate_by_code(currency_code, date, weeks=8)
+    # print(ils_values)
+    bbb = aaa.compare_exrates('ILS', 'EUR', date, days=4)
+    print(f'{bbb[0]}\n{bbb[1]}')

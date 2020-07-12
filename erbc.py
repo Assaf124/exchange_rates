@@ -11,6 +11,10 @@ currecny_input = input("Please type in a valid currency code: ")
 exrt = exrates.Exrates()
 ils_values = exrt.get_exrate_by_code(currecny_input, date_input, weeks=8)
 
+if ils_values is None:
+    print('Bye')
+    exit()
+
 dates_list = list()
 currency_rate_list = list()
 
