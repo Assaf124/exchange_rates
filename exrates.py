@@ -17,6 +17,8 @@ class Exrates:
         self.exchange_rates_by_code = dict()
         self.step = None
         self.range = None
+        self._digit = None
+        self._value = None
         self.dir_path = ''
 
     def _fetch_currencies(self):
@@ -266,31 +268,32 @@ class Exrates:
         :param currency_code2:      string. 3 chars currency code, for example: USD, ILS
         :param date:                string. date info in the format YYYY-MM-DD
         :param time_frame:          integer. accept 'days' or 'weeks' for example days=21 | weeks=5
-                                    represent the number of days/weeks back to fetch ex-rate info.
+                                    supports up to 99 weeks or 49 days
+                                    represents the number of days/weeks back to fetch ex-rate info.
         :returns:                   tuple. contains two dictionaries. each are in the format of {'date1': exchange_rate1..}
                                     None
         """
-        # time_type = re.findall('|'.join((['days','weeks'])), str(time_frame.keys()))
-
         try:
             if re.findall('weeks', str(time_frame.keys())):
-                digit = re.findall('[0-9]', str(time_frame.values()))
-                self.get_exrate_by_code(currency_code1, date, weeks=int(digit[0]))
+                self._digit = re.findall('[0-9]|[0-9][0-9]$', str(time_frame.values()))
+                self._value = ''.join(self._digit)
+                self.get_exrate_by_code(currency_code1, date, weeks=int(self._value))
                 currency_list_1 = self.exchange_rates_by_code.copy()
-                self.get_exrate_by_code(currency_code2, date, weeks=int(digit[0]))
+                self.get_exrate_by_code(currency_code2, date, weeks=int(self._value))
                 currency_list_2 = self.exchange_rates_by_code.copy()
             elif re.findall('days', str(time_frame.keys())):
-                digit = re.findall('[0-9]', str(time_frame.values()))
-                self.get_exrate_by_code(currency_code1, date, days=int(digit[0]))
+                self._digit = re.findall('[0-9]|[0-4][0-9]$', str(time_frame.values()))
+                self._value = ''.join(self._digit )
+                self.get_exrate_by_code(currency_code1, date, days=int(self._value))
                 currency_list_1 = self.exchange_rates_by_code.copy()
-                self.get_exrate_by_code(currency_code2, date, days=int(digit[0]))
+                self.get_exrate_by_code(currency_code2, date, days=int(self._value))
                 currency_list_2 = self.exchange_rates_by_code.copy()
             else:
                 currency_list_1 = None
                 currency_list_2 = None
                 print('Was unable to run time_frame input. please check it')
                 return None
-            return (currency_list_1, currency_list_2)
+            return currency_list_1, currency_list_2
 
         except Exception as error:
             print(f'{error}')
@@ -357,5 +360,5 @@ if __name__ == '__main__':
     # print(rates)
     # ils_values = aaa.get_exrate_by_code(currency_code, date, weeks=8)
     # print(ils_values)
-    bbb = aaa.compare_exrates('ILS', 'EUR', date, days=4)
+    bbb = aaa.compare_exrates('ILS', 'EUR', date, days=52)
     print(f'{bbb[0]}\n{bbb[1]}')
