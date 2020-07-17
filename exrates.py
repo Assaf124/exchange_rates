@@ -19,6 +19,8 @@ class Exrates:
         self.range = None
         self._digit = None
         self._value = None
+        self._currency_list_1 = list()
+        self._currency_list_2 = list()
         self.dir_path = ''
 
     def _fetch_currencies(self):
@@ -278,22 +280,22 @@ class Exrates:
                 self._digit = re.findall('[0-9]|[0-9][0-9]$', str(time_frame.values()))
                 self._value = ''.join(self._digit)
                 self.get_exrate_by_code(currency_code1, date, weeks=int(self._value))
-                currency_list_1 = self.exchange_rates_by_code.copy()
+                self._currency_list_1 = self.exchange_rates_by_code.copy()
                 self.get_exrate_by_code(currency_code2, date, weeks=int(self._value))
-                currency_list_2 = self.exchange_rates_by_code.copy()
+                self._currency_list_2 = self.exchange_rates_by_code.copy()
             elif re.findall('days', str(time_frame.keys())):
                 self._digit = re.findall('[0-9]|[0-4][0-9]$', str(time_frame.values()))
                 self._value = ''.join(self._digit )
                 self.get_exrate_by_code(currency_code1, date, days=int(self._value))
-                currency_list_1 = self.exchange_rates_by_code.copy()
+                self._currency_list_1 = self.exchange_rates_by_code.copy()
                 self.get_exrate_by_code(currency_code2, date, days=int(self._value))
-                currency_list_2 = self.exchange_rates_by_code.copy()
+                self._currency_list_2 = self.exchange_rates_by_code.copy()
             else:
-                currency_list_1 = None
-                currency_list_2 = None
+                self._currency_list_1 = None
+                self._currency_list_2 = None
                 print('Was unable to run time_frame input. please check it')
                 return None
-            return currency_list_1, currency_list_2
+            return self._currency_list_1, self._currency_list_2
 
         except Exception as error:
             print(f'{error}')
@@ -360,5 +362,5 @@ if __name__ == '__main__':
     # print(rates)
     # ils_values = aaa.get_exrate_by_code(currency_code, date, weeks=8)
     # print(ils_values)
-    bbb = aaa.compare_exrates('ILS', 'EUR', date, days=52)
+    bbb = aaa.compare_exrates('ILS', 'EUR', date, weeks=5)
     print(f'{bbb[0]}\n{bbb[1]}')
