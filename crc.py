@@ -49,8 +49,8 @@ ax2.yaxis.label.set_color('r')
 ax2.spines['right'].set_color('red')
 ax2.tick_params(axis='y', colors='red')
 
-line1, = ax.plot(dates_list_1, currency_rate_list_1, '#1E90FF')
-line2, = ax2.plot(dates_list_2, currency_rate_list_2, '#DC143C')
+line1, = ax.plot(dates_list_1, currency_rate_list_1, '-', color='#1E90FF')
+line2, = ax2.plot(dates_list_2, currency_rate_list_2, '--', color='#DC143C')
 
 ax.legend([line1, line2], [f'{first_currency_input}', f'{second_currency_input}'])
 plt.xticks(rotation=45)
