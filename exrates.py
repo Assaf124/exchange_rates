@@ -3,12 +3,13 @@ import os
 import re
 import datetime
 import time
+import csv
 
 
 class Exrates:
     APP_ID = 'b028bbce16ba4164a4e98211dff8d23f'
     DIR_NAME = 'exchange_rates_data'
-    CURRENCIES_FILE_NAME = 'currencies.csv'
+    CURRENCIES_FILE_NAME = 'currencies__.csv'
     currencies_file_path = os.path.join(DIR_NAME, CURRENCIES_FILE_NAME)
 
     def __init__(self):
@@ -79,7 +80,7 @@ class Exrates:
                     False
         """
         try:
-            os.makedirs(Exrates.DIR_NAME, mode=0o777 ,exist_ok=True)
+            os.makedirs(Exrates.DIR_NAME, mode=0o777, exist_ok=True)
             return True
 
         except Exception as error:
@@ -101,6 +102,25 @@ class Exrates:
                 file.write(str(currencies_as_csv))
                 file.close()
             return True
+
+        except Exception as error:
+            print(f'{error}')
+            return False
+
+    def _save_currencies_new(self, currencies: dict):
+        """
+        Saves the dictionary currencies as a csv file.
+        :param currencies:  dictionary
+        :return:            True
+                            False
+        """
+        self.create_dir()
+        path_to_csv_file = Exrates.currencies_file_path
+        try:
+            for key, value in currencies.items():
+                with open(path_to_csv_file, 'a', newline='') as outfile:
+                    csv_writer = csv.writer(outfile, delimiter=',')
+                    csv_writer.writerow([value, key])
 
         except Exception as error:
             print(f'{error}')
@@ -357,10 +377,12 @@ if __name__ == '__main__':
     # print(aaa._generate_new_date(date, -7))
     # print(aaa.date_validation(date))
     # currencies = aaa.get_currencies()
+    currencies = aaa._fetch_currencies()
+    aaa._save_currencies_new(currencies)
     # print(currencies)
     # rates = aaa.get_exrates(date)
     # print(rates)
     # ils_values = aaa.get_exrate_by_code(currency_code, date, weeks=8)
     # print(ils_values)
-    bbb = aaa.compare_exrates('ILS', 'EUR', date, weeks=5)
-    print(f'{bbb[0]}\n{bbb[1]}')
+    # bbb = aaa.compare_exrates('ILS', 'EUR', date, weeks=5)
+    # print(f'{bbb[0]}\n{bbb[1]}')
