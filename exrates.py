@@ -95,26 +95,6 @@ class Exrates:
                             False
         """
         self.create_dir()
-        currencies_as_csv = self._convert_currencies_to_csv(currencies)
-        try:
-            path = Exrates.currencies_file_path
-            with open(path, 'w') as file:
-                file.write(str(currencies_as_csv))
-                file.close()
-            return True
-
-        except Exception as error:
-            print(f'{error}')
-            return False
-
-    def _save_currencies_new(self, currencies: dict):
-        """
-        Saves the dictionary currencies as a csv file.
-        :param currencies:  dictionary
-        :return:            True
-                            False
-        """
-        self.create_dir()
         path_to_csv_file = Exrates.currencies_file_path
         try:
             for key, value in currencies.items():
@@ -148,28 +128,6 @@ class Exrates:
             return False
 
     def _load_currencies(self):
-        """
-        Loads currencies info from drive, convert it from string/csv format
-        to python dictionary and returns it
-        :return:    dictionary
-                    None
-        """
-        try:
-            file_obj = open(Exrates.currencies_file_path, 'r')
-            file_content = file_obj.read()
-            file_as_list = re.split('[\n,]', file_content)
-
-            for index, item in enumerate(file_as_list[:-1]):
-                if index % 2 != 0:
-                    continue
-                self.currencies[item] = file_as_list[index + 1]
-            return self.currencies
-
-        except Exrates as error:
-            print(f'{error}')
-            return None
-
-    def _load_currencies_new(self):
         """
         Loads currencies info from drive, convert it from string/csv format
         to python dictionary and returns it
@@ -220,10 +178,10 @@ class Exrates:
         """
         try:
             if os.path.exists(Exrates.currencies_file_path):
-                return self._load_currencies_new()
+                return self._load_currencies()
             else:
                 currencies = self._fetch_currencies()
-                self._save_currencies_new(currencies)
+                self._save_currencies(currencies)
                 return currencies
 
         except Exception as error:
@@ -394,6 +352,7 @@ if __name__ == '__main__':
     # print(aaa._generate_new_date(date, -7))
     # print(aaa.date_validation(date))
     currencies = aaa.get_currencies()
+    print(aaa.currencies)
 
     # currencies = aaa._fetch_currencies()
     # aaa._save_currencies_new(currencies)
