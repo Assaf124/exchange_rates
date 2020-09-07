@@ -97,10 +97,11 @@ class Exrates:
         self.create_dir()
         path_to_csv_file = Exrates.currencies_file_path
         try:
-            for key, value in currencies.items():
-                with open(path_to_csv_file, 'a', newline='') as outfile:
-                    csv_writer = csv.writer(outfile, delimiter=',')
-                    csv_writer.writerow([value, key])
+            with open(path_to_csv_file, 'w', newline='') as outfile:
+                writer = csv.writer(outfile, delimiter=',')
+                for key, value in currencies.items():
+                    writer.writerow([value, key])
+            return True
 
         except Exception as error:
             print(f'{error}')
@@ -115,33 +116,13 @@ class Exrates:
                             False
         """
         self.create_dir()
-        rates_as_csv = self._convert_exrates_to_csv(rates_info)
-        try:
-            path = os.path.join(Exrates.DIR_NAME, f'ex_rates_{date}.csv')
-            with open(path, 'w') as file:
-                file.write(str(rates_as_csv))
-                file.close()
-            return True
-
-        except Exception as error:
-            print(f'{error}')
-            return False
-
-    def _save_exrates_new(self, date: str, rates_info: dict):
-        """
-        Saves the exchange rates data for date date in the appropriate exchange rates file.
-        :param date:        string. date info in the format YYYY-MM-DD
-        :param rates_info:  dictionary. exchange rates information
-        :return:            True
-                            False
-        """
-        self.create_dir()
         exrates_file_path = os.path.join(Exrates.DIR_NAME, f'ex_rates_{date}.csv')
         try:
             with open(exrates_file_path, 'w', newline='') as rates_as_csv:
                 writer = csv.writer(rates_as_csv, delimiter=',')
                 for key, value in rates_info.items():
                     writer.writerow([key, value])
+            return True
 
         except Exception as error:
             print(f'{error}')
@@ -369,15 +350,15 @@ if __name__ == '__main__':
     currency_code = 'EUR'
     aaa = Exrates()
 
-    aaa._fetch_exrates(date)
-    print(aaa.exchange_rates)
-    aaa._save_exrates_new(date, aaa.exchange_rates)
+    # aaa._fetch_exrates(date)
+    # print(aaa.exchange_rates)
+    # aaa._save_exrates_new(date, aaa.exchange_rates)
 
     # aaa.get_exrate_by_code_new('ILS', '2017-08-25', weeks=56)
     # print(aaa._generate_new_date(date, -7))
     # print(aaa.date_validation(date))
-    # currencies = aaa.get_currencies()
-    # print(aaa.currencies)
+    currencies = aaa.get_currencies()
+    print(aaa.currencies)
 
     # currencies = aaa._fetch_currencies()
     # aaa._save_currencies_new(currencies)
