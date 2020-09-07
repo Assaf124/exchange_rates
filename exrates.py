@@ -169,6 +169,23 @@ class Exrates:
             print(f'{error}')
             return None
 
+    def _load_currencies_new(self):
+        """
+        Loads currencies info from drive, convert it from string/csv format
+        to python dictionary and returns it
+        :return:    dictionary
+                    None
+        """
+        try:
+            with open(Exrates.currencies_file_path, 'r') as currencies_file:
+                reader = csv.reader(currencies_file)
+                for row in reader:
+                    self.currencies[row[1]] = row[0]
+
+        except Exrates as error:
+            print(f'{error}')
+            return None
+
     def _load_exrates(self, date: str):
         """
         Loads exchange rates info from drive, convert it from string/csv format
@@ -203,10 +220,10 @@ class Exrates:
         """
         try:
             if os.path.exists(Exrates.currencies_file_path):
-                return self._load_currencies()
+                return self._load_currencies_new()
             else:
                 currencies = self._fetch_currencies()
-                self._save_currencies(currencies)
+                self._save_currencies_new(currencies)
                 return currencies
 
         except Exception as error:
@@ -376,9 +393,13 @@ if __name__ == '__main__':
     # aaa.get_exrate_by_code_new('ILS', '2017-08-25', weeks=56)
     # print(aaa._generate_new_date(date, -7))
     # print(aaa.date_validation(date))
-    # currencies = aaa.get_currencies()
-    currencies = aaa._fetch_currencies()
-    aaa._save_currencies_new(currencies)
+    currencies = aaa.get_currencies()
+
+    # currencies = aaa._fetch_currencies()
+    # aaa._save_currencies_new(currencies)
+    # aaa._load_currencies_new()
+    # print(aaa.currencies)
+
     # print(currencies)
     # rates = aaa.get_exrates(date)
     # print(rates)
