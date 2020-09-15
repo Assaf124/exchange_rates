@@ -9,7 +9,7 @@ import csv
 class Exrates:
     APP_ID = 'b028bbce16ba4164a4e98211dff8d23f'
     CSV_DIR_NAME = 'exchange_rates_data'
-    CURRENCIES_FILE_NAME = 'currencies__.csv'
+    CURRENCIES_FILE_NAME = 'currencies.csv'
     currencies_file_path = os.path.join(CSV_DIR_NAME, CURRENCIES_FILE_NAME)
 
     def __init__(self):
@@ -312,61 +312,11 @@ class Exrates:
             print(f'{error}')
             return None
 
-    def _convert_currencies_to_csv(self, currencies_file: dict):
-        """
-        Converts the currencies file fetched by _fetch_currencies to csv file format
-        :param currencies_file: dictionary. in the format of {'name': 'code'...}
-        :return:                string. csv file format
-        """
-        currencies = ''
-        for key, value in currencies_file.items():
-            currencies += value
-            currencies += ','
-            currencies += key
-            currencies += '\n'
-        return currencies
-
-    def _convert_exrates_to_csv(self, exrates_file: dict):
-        """
-        Converts the ex-rates file fetched by _fetch_exrates to csv file format
-        :param exrates_file:    dictionary. in the format of {'code': 'ex_rate'...}
-        :return:                csv file format
-        """
-        exrates = ''
-        for key, value in exrates_file.items():
-            exrates += key
-            exrates += ','
-            exrates += str(value)
-            exrates += '\n'
-        return exrates
-
 
 if __name__ == '__main__':
-    date = '2006-03-10'
+    date = '2006-03-08'
     currency_code = 'EUR'
     aaa = Exrates()
 
-    aaa._fetch_exrates(date)
-    print(aaa.exchange_rates)
-    aaa._save_exrates(date, aaa.exchange_rates)
-    bbb = aaa._load_exrates_new(date)
-    print(f'Rates for date: {date} are:\n{bbb}')
-
-    # aaa.get_exrate_by_code_new('ILS', '2017-08-25', weeks=56)
-    # print(aaa._generate_new_date(date, -7))
-    # print(aaa.date_validation(date))
-    # currencies = aaa.get_currencies()
-    # print(aaa.currencies)
-
-    # currencies = aaa._fetch_currencies()
-    # aaa._save_currencies_new(currencies)
-    # aaa._load_currencies_new()
-    # print(aaa.currencies)
-
-    # print(currencies)
-    # rates = aaa.get_exrates(date)
-    # print(rates)
-    # ils_values = aaa.get_exrate_by_code(currency_code, date, weeks=8)
-    # print(ils_values)
-    # bbb = aaa.compare_exrates('ILS', 'EUR', date, weeks=5)
-    # print(f'{bbb[0]}\n{bbb[1]}')
+    aaa.get_currencies()
+    aaa.get_exrates(date)
