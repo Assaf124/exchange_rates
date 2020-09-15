@@ -8,9 +8,9 @@ import csv
 
 class Exrates:
     APP_ID = 'b028bbce16ba4164a4e98211dff8d23f'
-    DIR_NAME = 'exchange_rates_data'
+    CSV_DIR_NAME = 'exchange_rates_data'
     CURRENCIES_FILE_NAME = 'currencies__.csv'
-    currencies_file_path = os.path.join(DIR_NAME, CURRENCIES_FILE_NAME)
+    currencies_file_path = os.path.join(CSV_DIR_NAME, CURRENCIES_FILE_NAME)
 
     def __init__(self):
         self.currencies = dict()
@@ -80,7 +80,7 @@ class Exrates:
                     False
         """
         try:
-            os.makedirs(Exrates.DIR_NAME, mode=0o777, exist_ok=True)
+            os.makedirs(Exrates.CSV_DIR_NAME, mode=0o777, exist_ok=True)
             return True
 
         except Exception as error:
@@ -116,7 +116,7 @@ class Exrates:
                             False
         """
         self.create_dir()
-        exrates_file_path = os.path.join(Exrates.DIR_NAME, f'ex_rates_{date}.csv')
+        exrates_file_path = os.path.join(Exrates.CSV_DIR_NAME, f'ex_rates_{date}.csv')
         try:
             with open(exrates_file_path, 'w', newline='') as rates_as_csv:
                 writer = csv.writer(rates_as_csv, delimiter=',')
@@ -141,7 +141,7 @@ class Exrates:
                 for row in reader:
                     self.currencies[row[1]] = row[0]
 
-        except Exrates as error:
+        except Exception as error:
             print(f'{error}')
             return None
 
@@ -153,16 +153,12 @@ class Exrates:
         :returns:       dictionary
                         None
         """
+        path_to_exrate_csv = os.path.join(Exrates.CSV_DIR_NAME, f'ex_rates_{date}.csv')
         try:
-            path = os.path.join(Exrates.DIR_NAME, f'ex_rates_{date}.csv')
-            file_obj = open(path, 'r')
-            file_content = file_obj.read()
-            file_as_list = re.split('[\n,]', file_content)
-
-            for index, item in enumerate(file_as_list[:-1]):
-                if index % 2 != 0:
-                    continue
-                self.exchange_rates[item] = file_as_list[index + 1]
+            with open(path_to_exrate_csv, 'r') as exrates_csv_file:
+                reader = csv.reader(exrates_csv_file)
+                for row in reader:
+                    self.exchange_rates[row[0]] = row[1]
             return self.exchange_rates
 
         except Exception as error:
@@ -198,7 +194,7 @@ class Exrates:
         :return:        dictionary
                         None
         """
-        path = os.path.join(Exrates.DIR_NAME, f'ex_rates_{date}.csv')
+        path = os.path.join(Exrates.CSV_DIR_NAME, f'ex_rates_{date}.csv')
         try:
             if os.path.exists(path):
                 return self._load_exrates(date)
@@ -239,7 +235,7 @@ class Exrates:
         try:
             fetch_date = self._generate_new_date(date, -time_frame)
             for x in range(self.range):
-                path = os.path.join(Exrates.DIR_NAME, f'ex_rates_{fetch_date}.csv')
+                path = os.path.join(Exrates.CSV_DIR_NAME, f'ex_rates_{fetch_date}.csv')
                 if not os.path.exists(path):
                     self._fetch_exrates(fetch_date)
                     self._save_exrates(fetch_date, self.exchange_rates)
@@ -346,19 +342,21 @@ class Exrates:
 
 
 if __name__ == '__main__':
-    date = '2006-03-12'
+    date = '2006-03-10'
     currency_code = 'EUR'
     aaa = Exrates()
 
-    # aaa._fetch_exrates(date)
-    # print(aaa.exchange_rates)
-    # aaa._save_exrates_new(date, aaa.exchange_rates)
+    aaa._fetch_exrates(date)
+    print(aaa.exchange_rates)
+    aaa._save_exrates(date, aaa.exchange_rates)
+    bbb = aaa._load_exrates_new(date)
+    print(f'Rates for date: {date} are:\n{bbb}')
 
     # aaa.get_exrate_by_code_new('ILS', '2017-08-25', weeks=56)
     # print(aaa._generate_new_date(date, -7))
     # print(aaa.date_validation(date))
-    currencies = aaa.get_currencies()
-    print(aaa.currencies)
+    # currencies = aaa.get_currencies()
+    # print(aaa.currencies)
 
     # currencies = aaa._fetch_currencies()
     # aaa._save_currencies_new(currencies)

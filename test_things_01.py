@@ -43,7 +43,7 @@ if __name__ == '__main__':
     # func_num('Assaf', 'Aloni', dayss=15)
 
     if os.path.exists(exrates.Exrates.currencies_file_path):
-        path = os.path.join(exrates.Exrates.DIR_NAME, 'currencies__.csv')
+        path = os.path.join(exrates.Exrates.CSV_DIR_NAME, 'currencies__.csv')
         my_csv_content = pd.read_csv(path, encoding='UTF-8')
         print(f'The object type is: {type(my_csv_content)}.\n\nThe object  content is:\n{my_csv_content}\n')
         print(f'{my_csv_content.T}\n\n')
